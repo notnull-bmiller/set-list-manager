@@ -115,8 +115,8 @@ function StatsContent(props) {
 
   useEffect(() => {
     if (props.setListDetails) {
-      console.log("SETTING DETAILS ROW KEY = ", props.setListDetails.rowkey);
-      setSetListSelected(props.setListDetails.rowkey);
+      console.log("SETTING DETAILS ROW KEY = ", props.setListDetails.RowKey);
+      setSetListSelected(props.setListDetails.RowKey);
       setReRender(new Date().getTime());
     }
   }, [props.setListDetails]);
@@ -129,7 +129,7 @@ function StatsContent(props) {
     if (setListDetails) {
       console.log("setList = ", setList);
       console.log("setListDetails = ", setListDetails);
-      let id = setListDetails.rowkey;
+      let id = setListDetails.RowKey;
       let body = await getSongsBody();
       console.log("body = ", body);
       let response = await Models.patchTable({ table: "SETLIST", id, body });
@@ -160,7 +160,7 @@ function StatsContent(props) {
     if (setListDetails) {
       console.log("setList = ", setList);
       console.log("setListDetails = ", setListDetails);
-      let id = setListDetails.rowkey;
+      let id = setListDetails.RowKey;
       let body = { Name: setListDetails.Name };
       let response = await Models.patchTable({ table: "SETLIST", id, body });
       props.handleAlert("Setlist Updated!", "success");

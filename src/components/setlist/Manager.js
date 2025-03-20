@@ -6,15 +6,7 @@ import { styled } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  MenuItem,
-  Stack,
-  Tooltip,
-} from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Stack, Tooltip } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -84,7 +76,7 @@ const SetlistManager = (props) => {
 
       for (let sl of setlistsRead) {
         sl["label"] = sl.Name;
-        sl["value"] = sl.rowkey;
+        sl["value"] = sl.RowKey;
       }
 
       setSetLists(setlistsRead);
@@ -229,7 +221,7 @@ const SetlistManager = (props) => {
     let songs = await getSongsBody();
     let body = {};
     body["PartitionKey"] = "ROTTEN";
-    body["RowKey"] = `${values.Name}_${values.Date}`;
+    body["RowKey"] = `${values.Name.replace(/[^a-zA-Z0-9]/g, "")}_${values.Date}`;
     body = { ...body, ...songs, ...values, Version: 1 };
 
     let response = await Models.postTable({ table: "SETLIST", body });
@@ -274,7 +266,7 @@ const SetlistManager = (props) => {
   );
 
   const updateSetlistName = async (name = null) => {
-    let id = setListDetails ? setListDetails.rowkey : null;
+    let id = setListDetails ? setListDetails.RowKey : null;
     if (name && id) {
       let body = { Name: name };
       console.log("body = ", body);
@@ -298,11 +290,7 @@ const SetlistManager = (props) => {
   const renderArtists = () => {
     return artists.map((artist) => (
       <div key={artist.id}>
-        {artist.images.length ? (
-          <img width={"100%"} src={artist.images[0].url} alt="" />
-        ) : (
-          <div>No Image</div>
-        )}
+        {artist.images.length ? <img width={"100%"} src={artist.images[0].url} alt="" /> : <div>No Image</div>}
         {artist.name}
       </div>
     ));
@@ -314,7 +302,7 @@ const SetlistManager = (props) => {
   //   if (setListDetails) {
   //     console.log("setList = ", setList);
   //     console.log("setListDetails = ", setListDetails);
-  //     let id = setListDetails.rowkey;
+  //     let id = setListDetails.RowKey;
   //     let body = await getSongsBody();
   //     // console.log("body = ", body);
   //     // let response = await Models.patchTable({ table: "SETLIST", id, body });
@@ -472,27 +460,9 @@ const SetlistManager = (props) => {
           // enableRowSelection
           // state={{ rowSelection }} //pass our managed row selection state to the table to use
         />
-        <CreateNewSongModal
-          columns={columns}
-          open={createModalOpen}
-          onClose={() => setCreateModalOpen(false)}
-          onSubmit={handleCreateNewRow}
-        />
-        <SetListModal
-          columns={setListColumns}
-          open={createSetListModalOpen}
-          onClose={() => setCreateSetListModalOpen(false)}
-          mode="New"
-          onSubmit={handleCreateNewSetList}
-        />
-        <SetListModal
-          columns={setListColumns}
-          open={editSetListModalOpen}
-          onClose={() => setEditSetListModalOpen(false)}
-          mode="Edit"
-          setListDetails={setListDetails}
-          onSubmit={handleEditSetList}
-        />
+        <CreateNewSongModal columns={columns} open={createModalOpen} onClose={() => setCreateModalOpen(false)} onSubmit={handleCreateNewRow} />
+        <SetListModal columns={setListColumns} open={createSetListModalOpen} onClose={() => setCreateSetListModalOpen(false)} mode="New" onSubmit={handleCreateNewSetList} />
+        <SetListModal columns={setListColumns} open={editSetListModalOpen} onClose={() => setEditSetListModalOpen(false)} mode="Edit" setListDetails={setListDetails} onSubmit={handleEditSetList} />
       </Box>
       {/* <form onSubmit={searchArtists}>
         <input type="text" onChange={(e) => setSearchKey(e.target.value)} />
@@ -592,12 +562,7 @@ export const CreateNewSongModal = ({ open, columns, onClose, onSubmit }) => {
             }}
           >
             {columns.map((column) => (
-              <TextField
-                key={column.accessorKey}
-                label={column.header}
-                name={column.accessorKey}
-                onChange={(e) => setValues({ ...values, [e.target.name]: e.target.value })}
-              />
+              <TextField key={column.accessorKey} label={column.header} name={column.accessorKey} onChange={(e) => setValues({ ...values, [e.target.name]: e.target.value })} />
             ))}
           </Stack>
         </form>
@@ -611,14 +576,7 @@ export const CreateNewSongModal = ({ open, columns, onClose, onSubmit }) => {
     </Dialog>
   );
 };
-export const SetListModal = ({
-  open,
-  columns,
-  onClose,
-  onSubmit,
-  mode = "New",
-  setListDetails = null,
-}) => {
+export const SetListModal = ({ open, columns, onClose, onSubmit, mode = "New", setListDetails = null }) => {
   const [values, setValues] = useState(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ""] = "";
@@ -644,10 +602,7 @@ export const SetListModal = ({
               gap: "1.5rem",
             }}
           >
-            {console.log(
-              "setListDetails component = ",
-              mode === "Edit" && setListDetails ? setListDetails.Name : null
-            )}
+            {console.log("setListDetails component = ", mode === "Edit" && setListDetails ? setListDetails.Name : null)}
             {columns.map((column) => (
               <TextField
                 key={column.accessorKey}
